@@ -102,4 +102,131 @@ router.put('/:deptId/next', auth, async (req, res) => {
     }
 });
 
+// @route   PUT api/queue/:deptId/previous
+// @desc    Go back to previous token
+// @access  Private (Dept Admin)
+router.put('/:deptId/previous', auth, async (req, res) => {
+    if (req.user.role !== 'dept_admin' && req.user.role !== 'super_admin') {
+        return res.status(403).json({ msg: 'Permission denied' });
+    }
+
+    try {
+        const dept = await Department.findById(req.params.deptId);
+        if (!dept) return res.status(404).json({ msg: 'Department not found' });
+
+        if (dept.currentToken > 0) {
+            dept.currentToken -= 1;
+            dept.lastUpdated = Date.now();
+
+            // Update Queue item status back to pending
+            await Queue.findOneAndUpdate(
+                { departmentId: dept.id, tokenNumber: dept.currentToken + 1 },
+                { status: 'Pending', servedAt: null }
+            );
+
+            await dept.save();
+
+            const io = req.app.get('io');
+            io.to(req.params.deptId).emit('queueUpdate', dept);
+
+            res.json(dept);
+        } else {
+            res.status(400).json({ msg: 'Already at token 0' });
+        }
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   PUT api/queue/:deptId/set
+// @desc    Set specific token number
+// @access  Private (Dept Admin)
+router.put('/:deptId/set', auth, async (req, res) => {
+    if (req.user.role !== 'dept_admin' && req.user.role !== 'super_admin') {
+        return res.status(403).json({ msg: 'Permission denied' });
+    }
+
+    const { tokenNumber } = req.body;
+
+    try {
+        const dept = await Department.findById(req.params.deptId);
+        if (!dept) return res.status(404).json({ msg: 'Department not found' });
+
+        if (tokenNumber < 0 || tokenNumber > dept.totalTokens) {
+            return res.status(400).json({ msg: 'Invalid token number' });
+        }
+
+        dept.currentToken = tokenNumber;
+        dept.lastUpdated = Date.now();
+
+        await dept.save();
+
+        const io = req.app.get('io');
+        io.to(req.params.deptId).emit('queueUpdate', dept);
+
+        res.json(dept);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   PUT api/queue/:deptId/toggle-pause
+// @desc    Pause or resume queue
+// @access  Private (Dept Admin)
+router.put('/:deptId/toggle-pause', auth, async (req, res) => {
+    if (req.user.role !== 'dept_admin' && req.user.role !== 'super_admin') {
+        return res.status(403).json({ msg: 'Permission denied' });
+    }
+
+    try {
+        const dept = await Department.findById(req.params.deptId);
+        if (!dept) return res.status(404).json({ msg: 'Department not found' });
+
+        dept.isPaused = !dept.isPaused;
+        dept.lastUpdated = Date.now();
+
+        await dept.save();
+
+        const io = req.app.get('io');
+        io.to(req.params.deptId).emit('queueUpdate', dept);
+
+        res.json(dept);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   GET api/queue/:deptId/stats
+// @desc    Get today's statistics
+// @access  Private (Dept Admin)
+router.get('/:deptId/stats', auth, async (req, res) => {
+    try {
+        const dept = await Department.findById(req.params.deptId);
+        if (!dept) return res.status(404).json({ msg: 'Department not found' });
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const completedToday = await Queue.countDocuments({
+            departmentId: req.params.deptId,
+            status: 'Completed',
+            completedAt: { $gte: today }
+        });
+
+        res.json({
+            currentToken: dept.currentToken,
+            totalTokens: dept.totalTokens,
+            completedToday,
+            crowdLevel: dept.crowdLevel,
+            isPaused: dept.isPaused
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
 module.exports = router;

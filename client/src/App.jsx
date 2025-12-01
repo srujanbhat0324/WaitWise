@@ -7,6 +7,7 @@ import Signup from './pages/Signup';
 import OfficeView from './pages/OfficeView';
 import DepartmentView from './pages/DepartmentView';
 import AdminDashboard from './pages/AdminDashboard';
+import DeptAdminDashboard from './pages/DeptAdminDashboard';
 
 function App() {
     return (
@@ -20,6 +21,7 @@ function App() {
                         <Route path="office/:id" element={<OfficeView />} />
                         <Route path="department/:id" element={<DepartmentView />} />
                         <Route path="admin" element={<AdminDashboard />} />
+                        <Route path="dept-admin" element={<DeptAdminDashboard />} />
                     </Route>
                 </Routes>
             </AuthProvider>

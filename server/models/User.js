@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema({
         ref: 'Office',
         default: null, // For super_admin (manages whole office) or dept_admin
     },
+    bookmarks: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Office'
+    }],
     createdAt: {
         type: Date,
         default: Date.now,

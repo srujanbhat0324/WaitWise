@@ -100,8 +100,35 @@ router.post('/login', async (req, res) => {
 // @access  Private
 router.get('/user', auth, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select('-password');
+        const user = await User.findById(req.user.id).select('-password').populate('bookmarks');
         res.json(user);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   POST api/auth/bookmark/:officeId
+// @desc    Toggle bookmark for an office
+// @access  Private
+router.post('/bookmark/:officeId', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        const officeId = req.params.officeId;
+
+        const bookmarkIndex = user.bookmarks.indexOf(officeId);
+
+        if (bookmarkIndex > -1) {
+            // Remove bookmark
+            user.bookmarks.splice(bookmarkIndex, 1);
+        } else {
+            // Add bookmark
+            user.bookmarks.push(officeId);
+        }
+
+        await user.save();
+        const updatedUser = await User.findById(req.user.id).select('-password').populate('bookmarks');
+        res.json(updatedUser);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
