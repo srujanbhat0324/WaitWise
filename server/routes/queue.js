@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Department = require('../models/Department');
 const Queue = require('../models/Queue');
-const auth = require('../middleware/auth');
+const { requireAuth } = require('../middleware/auth');
 
 // @route   GET api/queue/:deptId
 // @desc    Get current status of a department
@@ -21,7 +21,7 @@ router.get('/:deptId', async (req, res) => {
 // @route   POST api/queue/:deptId/join
 // @desc    Join the queue (Get a token)
 // @access  Private (User)
-router.post('/:deptId/join', auth, async (req, res) => {
+router.post('/:deptId/join', requireAuth, async (req, res) => {
     try {
         const dept = await Department.findById(req.params.deptId);
         if (!dept) return res.status(404).json({ msg: 'Department not found' });
@@ -58,7 +58,7 @@ router.post('/:deptId/join', auth, async (req, res) => {
 // @route   PUT api/queue/:deptId/next
 // @desc    Call next token
 // @access  Private (Dept Admin)
-router.put('/:deptId/next', auth, async (req, res) => {
+router.put('/:deptId/next', requireAuth, async (req, res) => {
     // Check permission
     if (req.user.role !== 'dept_admin' && req.user.role !== 'super_admin') {
         return res.status(403).json({ msg: 'Permission denied' });
@@ -105,7 +105,7 @@ router.put('/:deptId/next', auth, async (req, res) => {
 // @route   PUT api/queue/:deptId/previous
 // @desc    Go back to previous token
 // @access  Private (Dept Admin)
-router.put('/:deptId/previous', auth, async (req, res) => {
+router.put('/:deptId/previous', requireAuth, async (req, res) => {
     if (req.user.role !== 'dept_admin' && req.user.role !== 'super_admin') {
         return res.status(403).json({ msg: 'Permission denied' });
     }
@@ -142,7 +142,7 @@ router.put('/:deptId/previous', auth, async (req, res) => {
 // @route   PUT api/queue/:deptId/set
 // @desc    Set specific token number
 // @access  Private (Dept Admin)
-router.put('/:deptId/set', auth, async (req, res) => {
+router.put('/:deptId/set', requireAuth, async (req, res) => {
     if (req.user.role !== 'dept_admin' && req.user.role !== 'super_admin') {
         return res.status(403).json({ msg: 'Permission denied' });
     }
@@ -175,7 +175,7 @@ router.put('/:deptId/set', auth, async (req, res) => {
 // @route   PUT api/queue/:deptId/toggle-pause
 // @desc    Pause or resume queue
 // @access  Private (Dept Admin)
-router.put('/:deptId/toggle-pause', auth, async (req, res) => {
+router.put('/:deptId/toggle-pause', requireAuth, async (req, res) => {
     if (req.user.role !== 'dept_admin' && req.user.role !== 'super_admin') {
         return res.status(403).json({ msg: 'Permission denied' });
     }
@@ -202,7 +202,7 @@ router.put('/:deptId/toggle-pause', auth, async (req, res) => {
 // @route   GET api/queue/:deptId/stats
 // @desc    Get today's statistics
 // @access  Private (Dept Admin)
-router.get('/:deptId/stats', auth, async (req, res) => {
+router.get('/:deptId/stats', requireAuth, async (req, res) => {
     try {
         const dept = await Department.findById(req.params.deptId);
         if (!dept) return res.status(404).json({ msg: 'Department not found' });
