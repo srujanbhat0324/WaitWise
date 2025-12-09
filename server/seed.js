@@ -80,6 +80,8 @@ const seedData = async () => {
                 type: 'Point',
                 coordinates: [77.6101, 12.9822]
             },
+            lat: 12.9822,
+            lng: 77.6101,
             type: 'Bank',
             adminId: superAdmin._id
         });
