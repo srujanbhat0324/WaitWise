@@ -110,8 +110,36 @@ const Home = () => {
 
     return (
         <div className="space-y-6">
+            {/* Hero Banner */}
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl p-8 shadow-lg">
+                <div className="max-w-3xl">
+                    <h1 className="text-3xl md:text-4xl font-bold mb-3">WaitWise - Smart Queue Management</h1>
+                    <p className="text-blue-100 text-lg mb-6">
+                        Skip the wait, track your queue in real-time. Get AI-powered wait time predictions and never miss your turn.
+                    </p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="flex items-center gap-2">
+                            <Clock className="text-blue-200" size={20} />
+                            <span className="text-sm">Real-time Updates</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Zap className="text-blue-200" size={20} />
+                            <span className="text-sm">AI Predictions</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Bell className="text-blue-200" size={20} />
+                            <span className="text-sm">Notifications</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Users className="text-blue-200" size={20} />
+                            <span className="text-sm">Multi-Department</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <h1 className="text-2xl font-bold text-slate-800 mb-2">Find Nearby Offices</h1>
+                <h2 className="text-2xl font-bold text-slate-800 mb-2">Find Nearby Offices</h2>
                 <p className="text-slate-500 mb-4">Discover hospitals, banks, and offices near you.</p>
 
                 <div className="space-y-4">

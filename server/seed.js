@@ -54,6 +54,8 @@ const seedData = async () => {
                 type: 'Point',
                 coordinates: [77.5946, 12.9716] // Bangalore coordinates
             },
+            lat: 12.9716,
+            lng: 77.5946,
             type: 'Hospital',
             adminId: superAdmin._id
         });
@@ -65,6 +67,8 @@ const seedData = async () => {
                 type: 'Point',
                 coordinates: [77.6033, 12.9698]
             },
+            lat: 12.9698,
+            lng: 77.6033,
             type: 'RTO',
             adminId: superAdmin._id
         });
