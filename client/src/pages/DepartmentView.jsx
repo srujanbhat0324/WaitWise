@@ -21,7 +21,7 @@ const DepartmentView = () => {
 
     useEffect(() => {
         // Connect to Socket.IO
-        const newSocket = io('http://localhost:5000');
+        const newSocket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
 
         newSocket.emit('joinRoom', id);
 
