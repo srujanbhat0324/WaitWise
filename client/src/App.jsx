@@ -8,6 +8,10 @@ import OfficeView from './pages/OfficeView';
 import DepartmentView from './pages/DepartmentView';
 import AdminDashboard from './pages/AdminDashboard';
 import DeptAdminDashboard from './pages/DeptAdminDashboard';
+import Profile from './pages/Profile';
+import UserDashboard from './pages/UserDashboard';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
     return (
@@ -18,10 +22,14 @@ function App() {
                         <Route index element={<Home />} />
                         <Route path="login" element={<Login />} />
                         <Route path="signup" element={<Signup />} />
+                        <Route path="forgot-password" element={<ForgotPassword />} />
+                        <Route path="reset-password/:token" element={<ResetPassword />} />
                         <Route path="office/:id" element={<OfficeView />} />
                         <Route path="department/:id" element={<DepartmentView />} />
                         <Route path="admin" element={<AdminDashboard />} />
                         <Route path="dept-admin" element={<DeptAdminDashboard />} />
+                        <Route path="profile" element={<Profile />} />
+                        <Route path="dashboard" element={<UserDashboard />} />
                     </Route>
                 </Routes>
             </AuthProvider>

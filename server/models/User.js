@@ -33,6 +33,33 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Office'
     }],
+    phone: {
+        type: String,
+        default: null,
+    },
+    profilePicture: {
+        type: String,
+        default: null,
+    },
+    resetToken: {
+        type: String,
+        default: null,
+    },
+    resetTokenExpiry: {
+        type: Date,
+        default: null,
+    },
+    tokenHistory: [{
+        departmentId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Department'
+        },
+        tokenNumber: Number,
+        date: {
+            type: Date,
+            default: Date.now
+        }
+    }],
     createdAt: {
         type: Date,
         default: Date.now,

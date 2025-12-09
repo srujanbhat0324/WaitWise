@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const User = require('../models/User');
-const auth = require('../middleware/auth');
+const { auth, requireSuperAdmin } = require('../middleware/auth');
 
 // @route   POST api/auth/signup
 // @desc    Register user
@@ -128,6 +129,126 @@ router.post('/bookmark/:officeId', auth, async (req, res) => {
 
         await user.save();
         const updatedUser = await User.findById(req.user.id).select('-password').populate('bookmarks');
+        res.json(updatedUser);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   POST api/auth/forgot-password
+// @desc    Generate password reset token
+// @access  Public
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
+        // Generate reset token
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        user.resetToken = resetToken;
+        user.resetTokenExpiry = Date.now() + 3600000; // 1 hour
+        await user.save();
+
+        // In production, send email with reset link
+        // For now, return token directly
+        res.json({
+            msg: 'Reset token generated',
+            resetToken,
+            resetLink: `/reset-password/${resetToken}`
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   POST api/auth/reset-password/:token
+// @desc    Reset password with token
+// @access  Public
+router.post('/reset-password/:token', async (req, res) => {
+    const { password } = req.body;
+    const { token } = req.params;
+
+    try {
+        const user = await User.findOne({
+            resetToken: token,
+            resetTokenExpiry: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ msg: 'Invalid or expired reset token' });
+        }
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+        user.resetToken = null;
+        user.resetTokenExpiry = null;
+        await user.save();
+
+        res.json({ msg: 'Password reset successful' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   PUT api/auth/profile
+// @desc    Update user profile
+// @access  Private
+router.put('/profile', auth, async (req, res) => {
+    const { name, phone, profilePicture } = req.body;
+
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
+        if (name) user.name = name;
+        if (phone) user.phone = phone;
+        if (profilePicture) user.profilePicture = profilePicture;
+
+        await user.save();
+        const updatedUser = await User.findById(req.user.id).select('-password');
+        res.json(updatedUser);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   PUT api/auth/update-role
+// @desc    Update user role (super admin only)
+// @access  Private (Super Admin)
+router.put('/update-role', requireSuperAdmin, async (req, res) => {
+    const { userId, role, departmentId, officeId } = req.body;
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
+        user.role = role;
+        if (role === 'dept_admin') {
+            user.departmentId = departmentId;
+            user.officeId = officeId;
+        } else if (role === 'super_admin') {
+            user.officeId = officeId;
+            user.departmentId = null;
+        } else {
+            user.departmentId = null;
+            user.officeId = null;
+        }
+
+        await user.save();
+        const updatedUser = await User.findById(userId).select('-password');
         res.json(updatedUser);
     } catch (err) {
         console.error(err.message);

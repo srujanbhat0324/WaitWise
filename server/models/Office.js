@@ -20,6 +20,14 @@ const officeSchema = new mongoose.Schema({
             required: true,
         },
     },
+    lat: {
+        type: Number,
+        required: true,
+    },
+    lng: {
+        type: Number,
+        required: true,
+    },
     type: {
         type: String,
         enum: ['Hospital', 'RTO', 'Bank', 'Other'],

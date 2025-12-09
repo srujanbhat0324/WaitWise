@@ -33,6 +33,7 @@ mongoose.connect(mongoURI)
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/office', require('./routes/office'));
+app.use('/api/department', require('./routes/department'));
 app.use('/api/queue', require('./routes/queue'));
 app.use('/api/ai', require('./routes/ai'));
 
