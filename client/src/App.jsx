@@ -13,6 +13,8 @@ import UserDashboard from './pages/UserDashboard';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import NotFound from './pages/NotFound';
+import TokenHistory from './pages/TokenHistory';
+import ActiveTokens from './pages/ActiveTokens';
 
 function App() {
     return (
@@ -31,6 +33,8 @@ function App() {
                         <Route path="dept-admin" element={<DeptAdminDashboard />} />
                         <Route path="profile" element={<Profile />} />
                         <Route path="dashboard" element={<UserDashboard />} />
+                        <Route path="token-history" element={<TokenHistory />} />
+                        <Route path="active-tokens" element={<ActiveTokens />} />
                         <Route path="*" element={<NotFound />} />
                     </Route>
                 </Routes>

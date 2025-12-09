@@ -1,0 +1,96 @@
+/* Page Transitions */
+.page-enter {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.page-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 300ms, transform 300ms;
+}
+
+.page-exit {
+    opacity: 1;
+}
+
+.page-exit-active {
+    opacity: 0;
+    transition: opacity 300ms;
+}
+
+/* Mobile Improvements */
+@media (max-width: 768px) {
+    .container-padding {
+        @apply px-3;
+    }
+
+    .card-padding {
+        @apply p-4;
+    }
+
+    /* Better touch targets */
+    button,
+    a {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Improved mobile spacing */
+    .section-spacing {
+        @apply py-6;
+    }
+}
+
+/* Smooth scroll */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Better mobile drawer */
+.mobile-drawer {
+    @apply fixed inset-0 bg-black bg-opacity-50 z-40;
+    animation: fadeIn 200ms;
+}
+
+.mobile-drawer-content {
+    @apply fixed right-0 top-0 bottom-0 w-64 bg-white shadow-xl;
+    animation: slideInRight 300ms;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* Loading pulse animation */
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, Building2, LayoutDashboard, User, LogOut, Menu, X } from 'lucide-react';
+import { Home, Building2, LayoutDashboard, User, LogOut, Menu, X, Ticket, Clock } from 'lucide-react';
 import { useState } from 'react';
 
 const Navbar = () => {
@@ -37,10 +37,20 @@ const Navbar = () => {
                                 <span>Offices</span>
                             </Link>
                             {user.role === 'user' && (
-                                <Link to="/dashboard" className="flex items-center gap-2 text-slate-600 hover:text-primary transition-colors">
-                                    <LayoutDashboard size={18} />
-                                    <span>Dashboard</span>
-                                </Link>
+                                <>
+                                    <Link to="/dashboard" className="flex items-center gap-2 text-slate-600 hover:text-primary transition-colors">
+                                        <LayoutDashboard size={18} />
+                                        <span>Dashboard</span>
+                                    </Link>
+                                    <Link to="/active-tokens" className="flex items-center gap-2 text-slate-600 hover:text-primary transition-colors">
+                                        <Ticket size={18} />
+                                        <span>Active Tokens</span>
+                                    </Link>
+                                    <Link to="/token-history" className="flex items-center gap-2 text-slate-600 hover:text-primary transition-colors">
+                                        <Clock size={18} />
+                                        <span>History</span>
+                                    </Link>
+                                </>
                             )}
                             {user.role === 'dept_admin' && (
                                 <Link to="/dept-admin" className="flex items-center gap-2 text-slate-600 hover:text-primary transition-colors">
@@ -102,10 +112,20 @@ const Navbar = () => {
                             <span>Offices</span>
                         </Link>
                         {user.role === 'user' && (
-                            <Link to="/dashboard" className="flex items-center gap-2 text-slate-600 hover:text-primary py-2">
-                                <LayoutDashboard size={18} />
-                                <span>Dashboard</span>
-                            </Link>
+                            <>
+                                <Link to="/dashboard" className="flex items-center gap-2 text-slate-600 hover:text-primary py-2">
+                                    <LayoutDashboard size={18} />
+                                    <span>Dashboard</span>
+                                </Link>
+                                <Link to="/active-tokens" className="flex items-center gap-2 text-slate-600 hover:text-primary py-2">
+                                    <Ticket size={18} />
+                                    <span>Active Tokens</span>
+                                </Link>
+                                <Link to="/token-history" className="flex items-center gap-2 text-slate-600 hover:text-primary py-2">
+                                    <Clock size={18} />
+                                    <span>History</span>
+                                </Link>
+                            </>
                         )}
                         {user.role === 'dept_admin' && (
                             <Link to="/dept-admin" className="flex items-center gap-2 text-slate-600 hover:text-primary py-2">
