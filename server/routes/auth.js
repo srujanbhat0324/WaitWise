@@ -256,4 +256,17 @@ router.put('/update-role', requireSuperAdmin, async (req, res) => {
     }
 });
 
+// @route   GET api/auth/users
+// @desc    Get all users (super admin only)
+// @access  Private (Super Admin)
+router.get('/users', requireSuperAdmin, async (req, res) => {
+    try {
+        const users = await User.find().select('-password').populate('officeId departmentId');
+        res.json(users);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
 module.exports = router;

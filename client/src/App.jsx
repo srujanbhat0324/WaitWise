@@ -12,6 +12,7 @@ import Profile from './pages/Profile';
 import UserDashboard from './pages/UserDashboard';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import NotFound from './pages/NotFound';
 
 function App() {
     return (
@@ -30,6 +31,7 @@ function App() {
                         <Route path="dept-admin" element={<DeptAdminDashboard />} />
                         <Route path="profile" element={<Profile />} />
                         <Route path="dashboard" element={<UserDashboard />} />
+                        <Route path="*" element={<NotFound />} />
                     </Route>
                 </Routes>
             </AuthProvider>

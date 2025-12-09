@@ -11,6 +11,9 @@ const DeptAdminDashboard = () => {
     const [error, setError] = useState('');
     const [message, setMessage] = useState('');
     const [manualToken, setManualToken] = useState('');
+    const [analytics, setAnalytics] = useState(null);
+    const [editingAvgTime, setEditingAvgTime] = useState(false);
+    const [newAvgTime, setNewAvgTime] = useState('');
 
     useEffect(() => {
         if (!user?.departmentId) {
@@ -38,10 +41,20 @@ const DeptAdminDashboard = () => {
         try {
             const res = await axios.get(`/queue/${user.departmentId}`);
             setDepartment(res.data);
+            fetchAnalytics();
         } catch (err) {
             setError('Failed to load department data');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchAnalytics = async () => {
+        try {
+            const res = await axios.get(`/department/${user.departmentId}/analytics`);
+            setAnalytics(res.data);
+        } catch (err) {
+            console.error('Failed to load analytics');
         }
     };
 
@@ -83,6 +96,9 @@ const DeptAdminDashboard = () => {
     };
 
     const handleTogglePause = async () => {
+        if (!window.confirm(`Are you sure you want to ${department.isPaused ? 'resume' : 'pause'} the queue?`)) {
+            return;
+        }
         try {
             const res = await axios.put(`/queue/${user.departmentId}/toggle-pause`);
             setDepartment(res.data);
@@ -90,6 +106,20 @@ const DeptAdminDashboard = () => {
             setTimeout(() => setMessage(''), 3000);
         } catch (err) {
             setError('Failed to toggle pause');
+        }
+    };
+
+    const handleUpdateAvgTime = async () => {
+        try {
+            const res = await axios.put(`/department/${user.departmentId}/avg-time`, {
+                avgWaitTimePerToken: parseInt(newAvgTime)
+            });
+            setDepartment(res.data);
+            setEditingAvgTime(false);
+            setMessage('Average time updated successfully');
+            setTimeout(() => setMessage(''), 3000);
+        } catch (err) {
+            setError('Failed to update average time');
         }
     };
 
@@ -181,8 +211,8 @@ const DeptAdminDashboard = () => {
                     <button
                         onClick={handleTogglePause}
                         className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${department?.isPaused
-                                ? 'bg-green-500 text-white hover:bg-green-600'
-                                : 'bg-orange-500 text-white hover:bg-orange-600'
+                            ? 'bg-green-500 text-white hover:bg-green-600'
+                            : 'bg-orange-500 text-white hover:bg-orange-600'
                             }`}
                     >
                         {department?.isPaused ? (
@@ -227,8 +257,8 @@ const DeptAdminDashboard = () => {
                     <div className="flex justify-between items-center">
                         <span className="text-slate-600">Status:</span>
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${department?.isPaused
-                                ? 'bg-orange-100 text-orange-700'
-                                : 'bg-green-100 text-green-700'
+                            ? 'bg-orange-100 text-orange-700'
+                            : 'bg-green-100 text-green-700'
                             }`}>
                             {department?.isPaused ? 'Paused' : 'Active'}
                         </span>
@@ -237,10 +267,10 @@ const DeptAdminDashboard = () => {
                     <div className="flex justify-between items-center">
                         <span className="text-slate-600">Crowd Level:</span>
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${department?.crowdLevel === 'High'
-                                ? 'bg-red-100 text-red-700'
-                                : department?.crowdLevel === 'Medium'
-                                    ? 'bg-yellow-100 text-yellow-700'
-                                    : 'bg-green-100 text-green-700'
+                            ? 'bg-red-100 text-red-700'
+                            : department?.crowdLevel === 'Medium'
+                                ? 'bg-yellow-100 text-yellow-700'
+                                : 'bg-green-100 text-green-700'
                             }`}>
                             {department?.crowdLevel}
                         </span>
@@ -248,7 +278,42 @@ const DeptAdminDashboard = () => {
 
                     <div className="flex justify-between items-center">
                         <span className="text-slate-600">Avg Wait Time:</span>
-                        <span className="font-semibold text-slate-800">{department?.avgWaitTimePerToken} mins/token</span>
+                        {editingAvgTime ? (
+                            <div className="flex gap-2">
+                                <input
+                                    type="number"
+                                    value={newAvgTime}
+                                    onChange={(e) => setNewAvgTime(e.target.value)}
+                                    className="w-20 px-2 py-1 border border-slate-300 rounded"
+                                    min="1"
+                                />
+                                <button
+                                    onClick={handleUpdateAvgTime}
+                                    className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"
+                                >
+                                    Save
+                                </button>
+                                <button
+                                    onClick={() => setEditingAvgTime(false)}
+                                    className="px-3 py-1 bg-slate-200 text-slate-700 rounded text-sm hover:bg-slate-300"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2">
+                                <span className="font-semibold text-slate-800">{department?.avgWaitTimePerToken} mins/token</span>
+                                <button
+                                    onClick={() => {
+                                        setEditingAvgTime(true);
+                                        setNewAvgTime(department?.avgWaitTimePerToken);
+                                    }}
+                                    className="text-blue-600 hover:text-blue-700 text-sm"
+                                >
+                                    Edit
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex justify-between items-center">
@@ -259,6 +324,27 @@ const DeptAdminDashboard = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Analytics Panel */}
+            {analytics && (
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h2 className="text-lg font-bold text-slate-800 mb-4">Today's Analytics</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="p-4 bg-blue-50 rounded-lg">
+                            <p className="text-sm text-blue-600 mb-1">Tokens Served</p>
+                            <p className="text-2xl font-bold text-blue-700">{analytics.tokensServedToday}</p>
+                        </div>
+                        <div className="p-4 bg-green-50 rounded-lg">
+                            <p className="text-sm text-green-600 mb-1">Completed</p>
+                            <p className="text-2xl font-bold text-green-700">{analytics.tokensCompletedToday}</p>
+                        </div>
+                        <div className="p-4 bg-purple-50 rounded-lg">
+                            <p className="text-sm text-purple-600 mb-1">Avg Processing Time</p>
+                            <p className="text-2xl font-bold text-purple-700">{analytics.avgProcessingTime} min</p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
