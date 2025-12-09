@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { MapPin, Navigation, Search, Bookmark } from 'lucide-react';
+import { MapPin, Navigation, Search, Bookmark, Clock, Users, Zap, Bell } from 'lucide-react';
 
 const Home = () => {
     const { user } = useAuth();
@@ -132,8 +132,8 @@ const Home = () => {
                                 key={type}
                                 onClick={() => setSelectedType(type)}
                                 className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${selectedType === type
-                                        ? 'bg-primary text-white'
-                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    ? 'bg-primary text-white'
+                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                                     }`}
                             >
                                 {type}
